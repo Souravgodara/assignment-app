@@ -22,18 +22,7 @@ export const generateAccessAndRefereshTokens = async (userId) => {
 };
 
 export const signup = asyncHandler(async (req, res) => {
-  // get user details from frontend
-  // validation - not empty
-  // check if user already exists: username, email
-  // check for images, check for avatar
-  // upload them to cloudinary, avatar
-  // create user object - create entry in db
-  // remove password and refresh token field from response
-  // check for user creation
-  // return res
-
   const { email, username, password } = req.body;
-  //console.log("email: ", email);
 
   if ([email, username, password].some((field) => field?.trim() === "")) {
     return res.status(400).json({
@@ -75,13 +64,6 @@ export const signup = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-  // req body -> data
-  // username or email
-  //find the user
-  //password check
-  //access and referesh token
-  //send cookie
-
   const { email, password } = req.body;
 
   if (!(password || email)) {
@@ -122,7 +104,6 @@ export const login = asyncHandler(async (req, res) => {
 });
 
 export const logout = asyncHandler(async (req, res) => {
-  console.log("Logging Outtt");
   await User.findByIdAndUpdate(
     req.user._id,
     {

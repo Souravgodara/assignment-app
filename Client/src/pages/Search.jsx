@@ -25,8 +25,8 @@ export default function SearchResult() {
       <div className='flex flex-col items-center justify-center'>
         <h2 className='text-2xl mt-4 font-bold mb-6 '>Search Results:</h2>
         <div className='w-72 bg-white rounded-t-none rounded border-t-0'>
-          {results.lenght == 0 ? (
-            <h2 className='text-center w-full font-semibold'>No Requests</h2>
+          {results.length == 0 ? (
+            <h2 className='text-center w-full font-semibold'>No User Found</h2>
           ) : (
             results.map((user) => (
               <div

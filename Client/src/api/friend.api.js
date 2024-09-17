@@ -23,7 +23,6 @@ export const handleSearch = async (query) => {
       }
     );
     const { data, message } = await res.json();
-    console.log(data);
     if (!res.ok) {
       return { error: message };
     }
@@ -46,7 +45,7 @@ export const sendRequest = async (userId) => {
         recipientId: userId,
       }),
     });
-    const { data, message } = await res.json();
+    const { message } = await res.json();
     if (!res.ok) {
       return { error: message };
     }
@@ -84,7 +83,6 @@ export const respondRequest = async (requestId, status) => {
       },
     });
     const { message } = await res.json();
-    console.log({ message });
     if (!res.ok) {
       return { error: message };
     }
@@ -101,7 +99,6 @@ export const getFriends = async () => {
       credentials: "include",
     });
     const { data, message } = await res.json();
-    console.log({ message });
     if (!res.ok) {
       return { error: message };
     }

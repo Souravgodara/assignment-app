@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 
 export const listUsers = asyncHandler(async (req, res) => {
   try {
-    const currentUserId = req.user._id; // Assuming user ID is set in req.user by the auth middleware
+    const currentUserId = req.user._id;
     const users = await User.find({ _id: { $ne: currentUserId } }).select(
       "username email _id"
     );
@@ -17,7 +17,6 @@ export const listUsers = asyncHandler(async (req, res) => {
 
 export const search = asyncHandler(async (req, res) => {
   const { query } = req.query;
-  console.log(query);
   if (!query) {
     return res.status(400).json({ message: "Query parameter is required" });
   }
@@ -64,12 +63,12 @@ export const sendRequest = asyncHandler(async (req, res) => {
 
 export const getRequests = asyncHandler(async (req, res) => {
   try {
-    const currentUserId = req.user.id; // Get the current user's ID from the token
+    const currentUserId = req.user.id;
     const requests = await FriendRequest.find({
       recipient: currentUserId,
       status: "pending",
     })
-      .populate("requester", "username email") // Populate requester with username and email
+      .populate("requester", "username email")
       .exec();
 
     if (!requests) {
@@ -126,9 +125,9 @@ export const respondRequest = asyncHandler(async (req, res) => {
 
 export const friendList = asyncHandler(async (req, res) => {
   try {
-    const currentUserId = req.user.id; // Get the current user's ID from the token
+    const currentUserId = req.user.id;
     const user = await User.findById(currentUserId)
-      .populate("friends", "username email") // Populate friends with username and email
+      .populate("friends", "username email")
       .exec();
 
     if (!user) {
@@ -151,12 +150,10 @@ export const recommendations = asyncHandler(async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
-    // Find friends of friends
     const friendsOfFriends = await User.find({
       _id: { $in: user.friends.map((friend) => friend.friends).flat() },
-      _id: { $ne: userId }, // Exclude current user
-      _id: { $nin: user.friends.map((friend) => friend._id) }, // Exclude current friends
+      _id: { $ne: userId },
+      _id: { $nin: user.friends.map((friend) => friend._id) },
     }).select("username email");
 
     res.json(friendsOfFriends);
