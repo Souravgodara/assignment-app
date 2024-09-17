@@ -11,22 +11,27 @@ export const listUsers = asyncHandler(async (req, res) => {
     );
     res.status(200).json({ data: users, message: "Users Fetched" });
   } catch (error) {
-    return res.status(500).json({ error: "Something went wrong" });
+    return res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 export const search = asyncHandler(async (req, res) => {
   const { query } = req.query;
+  console.log(query);
   if (!query) {
-    return res.status(400).json({ error: "Query parameter is required" });
+    return res.status(400).json({ message: "Query parameter is required" });
   }
   try {
     const users = await User.find({
       username: { $regex: query, $options: "i" },
     }).select("username email");
-
-    res.json(users);
+    console.log(users);
+    return res.status(200).json({ data: users, message: "Users Fetched" });
   } catch (error) {
-    res.status(500).json({ error: "An error occurred while searching users" });
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "An error occurred while searching users" });
   }
 });
 

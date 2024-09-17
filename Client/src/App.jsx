@@ -6,7 +6,7 @@ import SignUp from "./pages/SignUp";
 import { lazy } from "react";
 import { UserContextProvider } from "./context/userContext";
 import Navbar from "./components/Navbar";
-import SearchResult from "./components/search-result";
+import SearchResult from "./pages/Search";
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 const router = createBrowserRouter([

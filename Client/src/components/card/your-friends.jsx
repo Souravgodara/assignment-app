@@ -27,16 +27,14 @@ export default function YourFriends() {
               <ButtonLoadingSpinner />
             </div>
           ) : (
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 w-full'>
               {friends?.length === 0 ? (
                 <h2 className='text-center w-full font-semibold'>
                   No Requests
                 </h2>
               ) : (
                 friends?.map((friend) => (
-                  <div
-                    key={friend._id}
-                    className='flex items-center justify-between p-2 border-b last:border-b-0'>
+                  <div key={friend._id} className='text-center p-2'>
                     <div className='text-lg font-medium'>{friend.username}</div>
                   </div>
                 ))

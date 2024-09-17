@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { handleSearch } from "../api/friend.api";
 import { PiSpinner } from "react-icons/pi";
-import AddFriend from "./add-friend";
+import AddFriend from "../components/add-friend";
 
 export default function SearchResult() {
   const { query } = useParams();
@@ -13,10 +13,9 @@ export default function SearchResult() {
     setLoading(false);
     const getResults = async () => {
       const { data } = await handleSearch(query);
-      if (!data) {
-        return null;
+      if (data) {
+        setResults(data);
       }
-      setResults(data);
       setLoading(false);
     };
     getResults();
@@ -26,7 +25,9 @@ export default function SearchResult() {
       <div className='flex flex-col items-center justify-center'>
         <h2 className='text-2xl mt-4 font-bold mb-6 '>Search Results:</h2>
         <div className='w-72 bg-white rounded-t-none rounded border-t-0'>
-          {results &&
+          {results.lenght == 0 ? (
+            <h2 className='text-center w-full font-semibold'>No Requests</h2>
+          ) : (
             results.map((user) => (
               <div
                 key={user._id}
@@ -34,9 +35,10 @@ export default function SearchResult() {
                 <div>
                   <p className='font-medium'>{user.username}</p>
                 </div>
-                <AddFriend />
+                <AddFriend userId={user._id} />
               </div>
-            ))}
+            ))
+          )}
           {loading && (
             <div className='flex justify-center p-2'>
               <PiSpinner />

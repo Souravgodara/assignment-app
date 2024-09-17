@@ -16,8 +16,14 @@ export const fetchUsers = async () => {
 
 export const handleSearch = async (query) => {
   try {
-    const res = await fetch(`/api/friends/search?query=${query}`);
+    const res = await fetch(
+      `http://localhost:3001/user/search?query=${query}`,
+      {
+        credentials: "include",
+      }
+    );
     const { data, message } = await res.json();
+    console.log(data);
     if (!res.ok) {
       return { error: message };
     }
