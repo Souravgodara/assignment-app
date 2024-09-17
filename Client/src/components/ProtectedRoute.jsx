@@ -6,11 +6,11 @@ export default function ProtectedRoute({ children }) {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (user === null) {
       navigate("/SignIn");
     }
-  }, [navigate, user]); */
+  }, []);
 
   return children;
 }
