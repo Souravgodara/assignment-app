@@ -24,7 +24,6 @@ export const search = asyncHandler(async (req, res) => {
     const users = await User.find({
       username: { $regex: query, $options: "i" },
     }).select("username email");
-    console.log(users);
     return res.status(200).json({ data: users, message: "Users Fetched" });
   } catch (error) {
     console.log(error);

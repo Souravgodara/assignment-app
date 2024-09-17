@@ -19,7 +19,7 @@ export default function YourFriends() {
   }, []);
   return (
     <>
-      <div className='border'>
+      <div className='border p-3'>
         <h1 className='text-3xl font-bold mb-6 text-center'>Your Friends</h1>
         <div className='flex flex-wrap gap-6'>
           {loading ? (

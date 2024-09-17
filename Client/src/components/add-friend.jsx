@@ -14,7 +14,10 @@ export default function AddFriend(userId) {
     setLoading(false);
   };
   return (
-    <Button isLoading={loading} onClick={handleSendRequest} className=''>
+    <Button
+      isLoading={loading}
+      onClick={handleSendRequest}
+      className='text-sm '>
       Add Friend
     </Button>
   );

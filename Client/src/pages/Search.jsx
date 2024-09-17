@@ -31,9 +31,9 @@ export default function SearchResult() {
             results.map((user) => (
               <div
                 key={user._id}
-                className='flex justify-between items-center px-4 py-2 hover:bg-zinc-200 rounded'>
+                className='flex justify-between bg-zinc-100 border items-center px-4 py-2 hover:bg-zinc-200 rounded'>
                 <div>
-                  <p className='font-medium'>{user.username}</p>
+                  <p className='text-lg font-medium'>{user.username}</p>
                 </div>
                 <AddFriend userId={user._id} />
               </div>
