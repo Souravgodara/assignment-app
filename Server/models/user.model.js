@@ -15,7 +15,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      lowecase: true,
+      lowercase: true,
       trim: true,
     },
     password: {
@@ -25,6 +25,12 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,

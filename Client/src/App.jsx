@@ -5,6 +5,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { lazy } from "react";
 import { UserContextProvider } from "./context/userContext";
+import Navbar from "./components/Navbar";
+import SearchResult from "./components/search-result";
 
 const NotFound = lazy(() => import("./pages/NotFound"));
 const router = createBrowserRouter([
@@ -13,11 +15,12 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <UserContextProvider>
+          <Navbar />
           <Home />
         </UserContextProvider>
       </ProtectedRoute>
     ),
-    errorElement: <NotFound />,
+    /* errorElement: <NotFound />, */
   },
   {
     path: "/SignIn",
@@ -36,6 +39,17 @@ const router = createBrowserRouter([
       </UserContextProvider>
     ),
     /* errorElement: <NotFound />, */
+  },
+  {
+    path: "/search/:query",
+    element: (
+      <ProtectedRoute>
+        <UserContextProvider>
+          <Navbar />
+          <SearchResult />
+        </UserContextProvider>
+      </ProtectedRoute>
+    ),
   },
 ]);
 

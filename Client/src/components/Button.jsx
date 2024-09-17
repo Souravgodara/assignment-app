@@ -13,7 +13,7 @@ export default function Button({
     <button
       disabled={isLoading}
       className={cn(
-        `w-full transform rounded-lg bg-blue-500 px-6 py-3 text-sm font-medium tracking-wide text-white transition-colors duration-300 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50 disabled:opacity-50 disabled:pointer-events-none`,
+        `transform rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium tracking-wide text-white transition-colors duration-300 hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50 disabled:opacity-50 disabled:pointer-events-none`,
         {
           "cursor-not-allowed opacity-50": isLoading,
         },

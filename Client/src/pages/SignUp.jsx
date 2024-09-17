@@ -1,40 +1,43 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../components/Button";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../context/userContext";
+import { signup } from "../api/auth.api";
 
 export default function SignUp() {
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleForm = async (e) => {
-    e.preventDefault();
+  const { user, setUser } = useContext(UserContext);
+
+  const handleForm = async (event) => {
+    event.preventDefault();
     setLoading(true);
-    setError("");
-
-    // Simple form validation
-    if (!name || !email || !password) {
-      setError("All fields are required.");
+    if (!email || !password) {
+      setError("Both email and password are required.");
       setLoading(false);
       return;
     }
-
-    try {
-      // Simulate an API request
-      await new Promise((resolve, reject) => setTimeout(() => resolve(), 2000));
-
-      // Reset form after successful registration (simulation)
-      setName("");
-      setEmail("");
-      setPassword("");
-    } catch (err) {
-      setError("Failed to register. Please try again.", err);
-    } finally {
-      setLoading(false);
+    setLoading(false);
+    const { data, error } = await signup(username, email, password);
+    if (data) {
+      setUser(data.user);
+      alert("User Registered");
+      navigate("/signin", { replace: true });
+    } else {
+      setError(error);
     }
+    setLoading(false);
   };
+  useEffect(() => {
+    if (user) {
+      navigate("/", { replace: true });
+    }
+  }, [navigate, user]);
 
   return (
     <div className='bg-gray-100 flex items-center justify-center h-screen'>
@@ -50,8 +53,8 @@ export default function SignUp() {
               className='w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
               type='text'
               id='name'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder='Enter your name'
               required
             />

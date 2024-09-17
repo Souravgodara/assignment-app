@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     if (user === null) {
-      navigate("/SignIn", { replace: true });
+      navigate("/SignIn");
     }
   }, [navigate, user]);
 

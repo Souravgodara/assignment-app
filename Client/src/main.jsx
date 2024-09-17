@@ -7,7 +7,7 @@ import { UserContextProvider } from "./context/userContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserContextProvider>
-      <main className='m-auto border max-w-[80rem] p-3'>
+      <main className='m-auto max-w-[80rem] px-3'>
         <App />
       </main>
     </UserContextProvider>
