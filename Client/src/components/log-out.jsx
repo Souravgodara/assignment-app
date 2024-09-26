@@ -19,6 +19,7 @@ export default function LogOut() {
       setUser(null);
       navigate("/SignIn", { replace: true });
     } else {
+      setLoading(false);
       console.error("Failed to log out", error);
       return;
     }

@@ -1,20 +1,28 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchCurrentUser } from "../api/auth.api";
+import { UserContext } from "../context/userContext";
+import PropTypes from "prop-types";
+import ButtonLoadingSpinner from "./ButtonLoadingSpinner";
 
-export default function ProtectedRoute({ children }) {
+const ProtectedRoute = ({ children }) => {
+  const { user, isLoading } = useContext(UserContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data } = await fetchCurrentUser();
-      if (data) {
-        return null;
-      }
-      navigate("/SignIn");
-    };
-    getUser();
-  }, []);
+    if (!isLoading && !user) {
+      navigate("/signin");
+    }
+  }, [isLoading, user, navigate]);
 
-  return children;
-}
+  if (isLoading) {
+    return <ButtonLoadingSpinner loadingText={"Authenticating..."} />;
+  }
+
+  return user ? children : null;
+};
+
+export default ProtectedRoute;
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};

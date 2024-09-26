@@ -2,51 +2,39 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
-export const generateAccessAndRefereshTokens = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
+// Improved generateAccessAndRefreshTokens function
+export const generateAccessAndRefreshTokens = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
 
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
+  const accessToken = user.generateAccessToken();
+  const refreshToken = user.generateRefreshToken();
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
 
-    return { accessToken, refreshToken };
-  } catch (error) {
-    console.log({ error });
-    return res.status(500).json({
-      data: null,
-      messsage: "Something went wrong",
-    });
-  }
+  return { accessToken, refreshToken };
 };
 
+// Sign up controller
 export const signup = asyncHandler(async (req, res) => {
   const { email, username, password } = req.body;
 
   if ([email, username, password].some((field) => field?.trim() === "")) {
     return res.status(400).json({
       data: null,
-      messsage: "All fields are required",
+      message: "All fields are required",
     });
   }
-  const existedUser = await User.findOne({
-    $or: [{ username }, { email }],
-  });
 
+  const existedUser = await User.findOne({ $or: [{ username }, { email }] });
   if (existedUser) {
     return res.status(409).json({
       data: null,
-      messsage: "User already exists",
+      message: "User already exists",
     });
   }
 
-  const user = await User.create({
-    email,
-    password,
-    username: username,
-  });
-
+  const user = await User.create({ email, password, username });
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
@@ -54,80 +42,68 @@ export const signup = asyncHandler(async (req, res) => {
   if (!createdUser) {
     return res.status(500).json({
       data: null,
-      messsage: "Something went wrong while registering the user",
+      message: "Something went wrong while registering the user",
     });
   }
 
   return res
     .status(201)
-    .json({ data: createdUser, message: "User registered Successfully" });
+    .json({ data: createdUser, message: "User registered successfully" });
 });
 
+// Login controller
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  if (!(password || email)) {
-    return res
-      .status(400)
-      .json({ data: null, message: "Username and Email is required" });
+  if (!email || !password) {
+    return res.status(400).json({
+      data: null,
+      message: "Email and password are required",
+    });
   }
-  const user = await User.findOne({ email });
 
+  const user = await User.findOne({ email });
   if (!user) {
-    return res.status(404).json({ data: null, message: "User Doesn't Exists" });
+    return res.status(404).json({
+      data: null,
+      message: "User doesn't exist",
+    });
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
-
   if (!isPasswordValid) {
-    return res.status(401).json({ data: null, message: "Invalid Credentials" });
+    return res.status(401).json({
+      data: null,
+      message: "Invalid credentials",
+    });
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
     user._id
   );
-
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
-
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json({ data: loggedInUser, message: "success" });
+    .cookie("accessToken", accessToken, { httpOnly: true, secure: true })
+    .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true })
+    .json({ data: loggedInUser, message: "Login successful" });
 });
 
+// Logout controller
 export const logout = asyncHandler(async (req, res) => {
-  await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $unset: {
-        refreshToken: 1,
-      },
-    },
-    {
-      new: true,
-    }
-  );
-
-  const options = {
-    httpOnly: true,
-    secure: true,
-  };
+  await User.findByIdAndUpdate(req.user._id, { $unset: { refreshToken: 1 } });
 
   return res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json({ data: null, message: "success" });
+    .clearCookie("accessToken", { httpOnly: true, secure: true })
+    .clearCookie("refreshToken", { httpOnly: true, secure: true })
+    .json({ data: null, message: "Logout successful" });
 });
 
+// Refresh access token controller
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies.refreshToken || req.body.refreshToken;
@@ -135,7 +111,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefreshToken) {
     return res
       .status(401)
-      .json({ data: null, message: "Unauthorized Request" });
+      .json({ data: null, message: "Unauthorized request" });
   }
 
   try {
@@ -143,37 +119,25 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
+    const user = await User.findById(decodedToken._id);
 
-    const user = await User.findById(decodedToken?._id);
-
-    if (!user) {
+    if (!user || incomingRefreshToken !== user.refreshToken) {
       return res
         .status(401)
-        .json({ data: null, message: "Invalid Refresh Token" });
+        .json({ data: null, message: "Unauthorized request" });
     }
 
-    if (incomingRefreshToken !== user?.refreshToken) {
-      return res
-        .status(401)
-        .json({ data: null, message: "Unauthorized Request" });
-    }
-
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
-    const { accessToken, newRefreshToken } =
-      await generateAccessAndRefereshTokens(user._id);
+    const { accessToken, refreshToken: newRefreshToken } =
+      await generateAccessAndRefreshTokens(user._id);
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("accessToken", accessToken, { httpOnly: true, secure: true })
+      .cookie("refreshToken", newRefreshToken, { httpOnly: true, secure: true })
       .json({
         accessToken,
         refreshToken: newRefreshToken,
-        message: "Access Token Refreshed",
+        message: "Access token refreshed",
       });
   } catch (error) {
     return res
@@ -182,13 +146,12 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
+// Change password controller
 export const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user?._id);
-  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
-
-  if (!isPasswordCorrect) {
+  const user = await User.findById(req.user._id);
+  if (!user || !(await user.isPasswordCorrect(oldPassword))) {
     return res
       .status(400)
       .json({ data: null, message: "Invalid old password" });
@@ -199,14 +162,12 @@ export const changeCurrentPassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json({ data: null, message: "Password Changed Successfully" });
+    .json({ data: null, message: "Password changed successfully" });
 });
 
+// Get current user controller
 export const getCurrentUser = asyncHandler(async (req, res) => {
-  if (req.user) {
-    console.log("Logged In ");
-  }
   return res
     .status(200)
-    .json({ data: req.user, message: "User Fetched Successfully" });
+    .json({ data: req.user, message: "User fetched successfully" });
 });
